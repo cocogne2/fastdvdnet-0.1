@@ -27,6 +27,7 @@ def temp_denoise(model, noisyframe, sigma_noise):
 	print("sigma_noise",sigma_noise.shape)
 	print(noisyframe)
 	print(sigma_noise)
+	print(model(noisyframe, sigma_noise))
     # denoise
 	out = torch.clamp(model(noisyframe, sigma_noise), 0., 1.)
 
