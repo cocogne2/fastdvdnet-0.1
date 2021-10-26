@@ -22,6 +22,12 @@ from utils import svd_orthogonalization, close_logger, init_logging, normalize_a
 from train_common import resume_training, lr_scheduler, log_train_psnr, \
 					validate_and_log, save_model_checkpoint
 
+import numpy as np
+import matplotlib.pyplot as plt
+import sys
+from skimage.util import random_noise
+
+
 def main(**args):
 	r"""Performs the main training loop
 	"""
@@ -88,17 +94,51 @@ def main(**args):
 			# convert inp to [N, num_frames*C. H, W] in  [0., 1.] from [N, num_frames, C. H, W] in [0., 255.]
 			# extract ground truth (central frame)
 			img_train, gt_train = normalize_augment(data[0]['data'], ctrl_fr_idx)
+			
+#			plt.imshow(gt_train[1,:,:,:].unsqueeze(0).cuda().detach().cpu().clone().numpy().swapaxes(0,3).swapaxes(1,2).squeeze())
+#			plt.savefig("/content/gdrive/My Drive/projet_7/savefig0.png")
+#			plt.imshow(img_train[1,0:3,:,:].unsqueeze(0).cuda().detach().cpu().clone().numpy().swapaxes(0,3).swapaxes(1,2).squeeze())
+#			plt.savefig("/content/gdrive/My Drive/projet_7/savefig1.png")
+#			plt.imshow(img_train[1,3:6,:,:].unsqueeze(0).cuda().detach().cpu().clone().numpy().swapaxes(0,3).swapaxes(1,2).squeeze())
+#			plt.savefig("/content/gdrive/My Drive/projet_7/savefig1bis.png")
+#			plt.imshow(img_train[1,6:9,:,:].unsqueeze(0).cuda().detach().cpu().clone().numpy().swapaxes(0,3).swapaxes(1,2).squeeze())
+#			plt.savefig("/content/gdrive/My Drive/projet_7/savefig1ter.png")
+#			plt.show()
 			N, _, H, W = img_train.size()
-
-			# std dev of each sequence
-			stdn = torch.empty((N, 1, 1, 1)).cuda().uniform_(args['noise_ival'][0], to=args['noise_ival'][1])
-			# draw noise samples from std dev tensor
-			noise = torch.zeros_like(img_train)
-			noise = torch.normal(mean=noise, std=stdn.expand_as(noise))
-
-			#define noisy input
-			imgn_train = img_train + noise
-
+			
+			if args['type_noise']=="gaussian":
+                # std dev of each sequence
+                                    stdn = torch.empty((N, 1, 1, 1)).cuda().uniform_(args['noise_ival'][0], to=args['noise_ival'][1])
+                # draw noise samples from std dev tensor
+                                    noise = torch.zeros_like(img_train)
+                                    noise = torch.normal(mean=noise, std=stdn.expand_as(noise))
+                #define noisy input
+                                    imgn_train = img_train + noise
+#                                    plt.imshow(imgn_train[1,0:3,:,:].unsqueeze(0).cuda().detach().cpu().clone().numpy().swapaxes(0,3).swapaxes(1,2).squeeze())
+#                                    plt.savefig("/content/gdrive/My Drive/projet_7/savefig1_gauss.png")
+#                                    sys.exit()
+			if args['type_noise']=="s&p":
+                                    s_vs_p = 0.5
+                                    # Salt mode
+                                    imgn_train = torch.tensor(random_noise(img_train.cpu(), mode='s&p', salt_vs_pepper=s_vs_p, clip=True)).cuda()
+                                    noise=imgn_train-img_train
+                                    stdn = torch.empty((N, 1, 1, 1)).cuda()
+                                    for img_du_batch in range(N):
+                                        stdn[img_du_batch,:,:,:]=torch.std(noise[img_du_batch,:,:,:],unbiased=True) 
+#                                    plt.imshow(imgn_train[1,0:3,:,:].unsqueeze(0).cuda().detach().cpu().clone().numpy().swapaxes(0,3).swapaxes(1,2).squeeze())
+#                                    plt.savefig("/content/gdrive/My Drive/projet_7/savefig1_s&p.png")
+#                                    sys.exit()
+                                    
+			if args['type_noise']=="speckle":
+                                    varia=args['speckle_var']
+                                    imgn_train = torch.tensor(random_noise(img_train.cpu(), mode='speckle', mean=0, var=varia, clip=True)).cuda().float()
+                                    noise=imgn_train-img_train
+                                    stdn = torch.empty((N, 1, 1, 1)).cuda()
+                                    for img_du_batch in range(N):
+                                        stdn[img_du_batch,:,:,:]=torch.std(noise[img_du_batch,:,:,:],unbiased=True) 
+#                                    plt.imshow(imgn_train[1,0:3,:,:].unsqueeze(0).cuda().detach().cpu().clone().numpy().swapaxes(0,3).swapaxes(1,2).squeeze())
+#                                    plt.savefig("/content/gdrive/My Drive/projet_7/savefig1_speckle.png")
+#                                    sys.exit()                        
 			# Send tensors to GPU
 			gt_train = gt_train.cuda(non_blocking=True)
 			imgn_train = imgn_train.cuda(non_blocking=True)
@@ -130,13 +170,17 @@ def main(**args):
 								training_params)
 			# update step counter
 			training_params['step'] += 1
-			if training_params['step']==2:
-				break
-            
+
 		# Call to model.eval() to correctly set the BN layers before inference
 		model.eval()
 
 		# Validation and log images
+		print("model:",model)
+		print("dataset:",dataset_val)
+		print("writer:",writer)
+		print("epoch:",epoch)
+		print("current_lr:",current_lr)
+		print("logger:",logger)
 		validate_and_log(
 						model_temp=model, \
 						dataset_val=dataset_val, \
@@ -182,6 +226,14 @@ if __name__ == "__main__":
 						orthogonalization")
 	parser.add_argument("--save_every_epochs", type=int, default=5,\
 						help="Number of training epochs to save state")
+###########################
+#  AJOUT                  #	
+###########################
+	parser.add_argument("--type_noise", type=str, default="gaussian", \
+                        help="type of the noise:gaussian,s&p,poisson")
+	parser.add_argument("--speckle_var", type=float, default=0.05, \
+                        help="variance of the speckle function")
+###########################
 	parser.add_argument("--noise_ival", nargs=2, type=int, default=[5, 55], \
 					 help="Noise training interval")
 	parser.add_argument("--val_noiseL", type=float, default=25, \
