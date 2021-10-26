@@ -130,7 +130,9 @@ def main(**args):
 								training_params)
 			# update step counter
 			training_params['step'] += 1
-
+			if training_params['step']==2:
+				break
+            
 		# Call to model.eval() to correctly set the BN layers before inference
 		model.eval()
 

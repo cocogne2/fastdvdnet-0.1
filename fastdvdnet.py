@@ -19,9 +19,12 @@ def temp_denoise(model, noisyframe, sigma_noise):
 	if expanded_w:
 		expanded_w = 4-expanded_w
 	padexp = (0, expanded_w, 0, expanded_h)
+	print("noisyframe",noisyframe.shape)
+	print("sigma_noise",sigma_noise.shape)
 	noisyframe = F.pad(input=noisyframe, pad=padexp, mode='reflect')
 	sigma_noise = F.pad(input=sigma_noise, pad=padexp, mode='reflect')
-
+	print("noisyframe",noisyframe.shape)
+	print("sigma_noise",sigma_noise.shape)
 	# denoise
 	out = torch.clamp(model(noisyframe, sigma_noise), 0., 1.)
 
