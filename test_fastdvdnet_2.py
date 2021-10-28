@@ -151,8 +151,8 @@ def test_fastdvdnet(**args):
 
 		if args['type_noise']=="speckle":
                     varia=args['speckle_var']
-                    seq1=seq[:N/2,:,:,:]
-                    seq2=seq[N/2:,:,:,:]
+                    seq1=seq[1:N/2,:,:,:]
+                    seq2=seq[N/2:N,:,:,:]
                     print("seq1",seq1.shape)
                     print("seq2",seq2.shape)
                     seqn = torch.tensor(random_noise(seq.cpu(), mode='speckle', mean=0, var=varia, clip=True)).cuda().float().to(device)
