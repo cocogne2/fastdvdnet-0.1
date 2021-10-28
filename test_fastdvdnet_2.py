@@ -28,7 +28,8 @@ def save_out_seq(seqnoisy, seqclean, save_dir, sigmaval, suffix, save_noisy):
 	"""
 	seq_len = seqnoisy.size()[0]
 	for idx in range(seq_len):
-		# Build Outname
+		print(idx)
+        # Build Outname
 		fext = OUTIMGEXT
 		noisy_name = os.path.join(save_dir,\
 						('n{}_{}').format(sigmaval, idx) + fext)
@@ -46,7 +47,7 @@ def save_out_seq(seqnoisy, seqclean, save_dir, sigmaval, suffix, save_noisy):
 
 		outimg = variable_to_cv2_image(seqclean[idx].unsqueeze(dim=0))
 		#cv2.imwrite(out_name, outimg)
-		if idx==42 | idx==69 | idx==97 :
+		if idx==42 | idx==69 | idx==97:
 			cv2.imwrite(out_name, outimg)
 def test_fastdvdnet(**args):
 	"""Denoises all sequences present in a given folder. Sequences must be stored as numbered
