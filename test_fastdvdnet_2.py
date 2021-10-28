@@ -144,24 +144,24 @@ def test_fastdvdnet(**args):
 		if args['type_noise']=="s&p":
                     s_vs_p = 0.5
                     # Salt mode
-                    seqn = torch.tensor(random_noise(seq.cpu(), mode='s&p', salt_vs_pepper=s_vs_p, clip=True)).cuda().to(device)
+                    milieu=round(N/2)
+                    seq1=seq[0:milieu,:,:,:]
+                    seq2=seq[milieu:N,:,:,:]
+                    seqn1 = torch.tensor(random_noise(seq1.cpu(), mode='s&p', salt_vs_pepper=s_vs_p, clip=True)).cuda().to(device)
+                    seqn2 = torch.tensor(random_noise(seq2.cpu(), mode='s&p', salt_vs_pepper=s_vs_p, clip=True)).cuda().to(device)
+                    seqn=torch.cat([seqn1,seqn2],0)
                     noise=seqn-seq
                     noisestd=torch.std(noise, unbiased=False).to(device)
                     sys.exit()
 
 		if args['type_noise']=="speckle":
                     varia=args['speckle_var']
-                    print("N:",N)
                     milieu=round(N/2)
-                    print("milieu:",milieu)
                     seq1=seq[0:milieu,:,:,:]
                     seq2=seq[milieu:N,:,:,:]
-                    print("seq1",seq1.shape)
-                    print("seq2",seq2.shape)
                     seqn1 = torch.tensor(random_noise(seq1.cpu(), mode='speckle', mean=0, var=varia, clip=True)).cuda().float().to(device)
                     seqn2 = torch.tensor(random_noise(seq2.cpu(), mode='speckle', mean=0, var=varia, clip=True)).cuda().float().to(device)
                     seqn=torch.cat([seqn1,seqn2],0)
-                    print("seqnshape",seqn.shape)
                     noise=seqn-seq
                     noisestd=torch.std(noise, unbiased=False).to(device)
                     sys.exit()
