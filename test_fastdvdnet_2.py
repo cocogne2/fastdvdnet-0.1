@@ -112,7 +112,6 @@ def test_fastdvdnet(**args):
                     noise = torch.empty_like(seq).normal_(mean=0, std=args['noise_sigma']).to(device)
                     seqn = seq + noise
                     noisestd = torch.FloatTensor([args['noise_sigma']]).to(device)
-                    sys.exit()
         #
 		if args['type_noise']=="uniform":
 # std dev of each sequence
