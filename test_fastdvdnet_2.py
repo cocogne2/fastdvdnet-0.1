@@ -206,7 +206,7 @@ if __name__ == "__main__":
 						 help='where to save outputs as png')
 	parser.add_argument("--gray", action='store_true',\
 						help='perform denoising of grayscale images instead of RGB')
-	parser.add_argument("--noise_type", type=str,default="gaussian",\
+	parser.add_argument("--type_noise", type=str,default="gaussian",\
 						 help='choose of the noise')
 	argspar = parser.parse_args()
 	# Normalize noises ot [0, 1]
