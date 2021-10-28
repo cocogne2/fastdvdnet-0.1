@@ -126,30 +126,25 @@ def test_fastdvdnet(**args):
                     #for img_du_batch in range(N):
                     #    noise2[img_du_batch,:,:,:] = noise2[img_du_batch,:,:,:]*v_max[img_du_batch]
                     #print(noise-noise2)
-                    print("noiseshape",noise.shape)
-                    seqn=seq+noise
                     noisestd=torch.std(noise, unbiased=False)
-                    print("noisestdshape",noisestd.shape)
+#                    plt.imshow(seqn[1,:,:,:].unsqueeze(0).cuda().detach().cpu().clone().numpy().swapaxes(0,3).swapaxes(1,2).squeeze())
+#                    plt.savefig("/content/gdrive/My Drive/projet_7/savefig3.png")
+#                    sys.exit()                                
+		if args['type_noise']=="poisson":
+                    peak=args['poisson_peak']
+                    seqn = torch.poisson(seq /255 * peak ) / float(peak) *255
+                    noise=seqn-seq
+                    noisestd=torch.std(noise,unbiased=True)
                     plt.imshow(seqn[1,:,:,:].unsqueeze(0).cuda().detach().cpu().clone().numpy().swapaxes(0,3).swapaxes(1,2).squeeze())
                     plt.savefig("/content/gdrive/My Drive/projet_7/savefig3.png")
-                    sys.exit()                                
-#		if args['type_noise']=="poisson":
-#                    peak=args['poisson_peak']
-#                    imgn_train = torch.poisson(img_train /255 * peak ) / float(peak) *255
-#                    noise=imgn_train-img_train
-#                    std=torch.std(noise,unbiased=True)
-#                    mean=torch.mean(noise)
-#                    stdn = torch.empty((N, 1, 1, 1)).cuda().normal_(mean=mean,std=std)
-
+                    sys.exit()  
 		if args['type_noise']=="s&p":
                     s_vs_p = 0.5
                     # Salt mode
                     seqn = torch.tensor(random_noise(seq.cpu(), mode='s&p', salt_vs_pepper=s_vs_p, clip=True)).cuda()
                     noise=seqn-seq
                     noisestd=torch.std(noise, unbiased=False)
-#                                    plt.imshow(imgn_train[1,0:3,:,:].unsqueeze(0).cuda().detach().cpu().clone().numpy().swapaxes(0,3).swapaxes(1,2).squeeze())
-#                                    plt.savefig("/content/gdrive/My Drive/projet_7/savefig1_s&p.png")
-#                                    sys.exit()
+
             
 		if args['type_noise']=="speckle":
                     varia=args['speckle_var']
@@ -157,9 +152,7 @@ def test_fastdvdnet(**args):
                     noise=seqn-seq
                     noisestd=torch.std(noise, unbiased=False)
                     
-#                                    plt.imshow(imgn_train[1,0:3,:,:].unsqueeze(0).cuda().detach().cpu().clone().numpy().swapaxes(0,3).swapaxes(1,2).squeeze())
-#                                    plt.savefig("/content/gdrive/My Drive/projet_7/savefig1_speckle.png")
-#                                    sys.exit()                        
+                     
 
 		denframes = denoise_seq_fastdvdnet(seq=seqn,\
 										noise_std=noisestd,\
@@ -213,6 +206,8 @@ if __name__ == "__main__":
 						 help='threshold of the uniform distribution of stantard error')
 	parser.add_argument("--speckle_var", type=float, default=0.05,\
 						 help='variance of the speckle distribution')
+	parser.add_argument("--poisson_peak", type=float, default=25.0, \
+                        help="peak of the poisson noise")
 	argspar = parser.parse_args()
 	# Normalize noises ot [0, 1]
 	argspar.noise_sigma /= 255.
