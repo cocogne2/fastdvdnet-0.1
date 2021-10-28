@@ -132,7 +132,7 @@ def test_fastdvdnet(**args):
 #                    sys.exit()                                
 		if args['type_noise']=="poisson":
                     peak=args['poisson_peak']
-                    seqn = torch.poisson(seq /255 * peak ) / float(peak) *255
+                    seqn = torch.poisson(seq  * peak ) / float(peak) 
                     noise=seqn-seq
                     noisestd=torch.std(noise,unbiased=True)
                     plt.imshow(seqn[1,:,:,:].unsqueeze(0).cuda().detach().cpu().clone().numpy().swapaxes(0,3).swapaxes(1,2).squeeze())
