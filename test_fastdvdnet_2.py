@@ -151,6 +151,7 @@ def test_fastdvdnet(**args):
 
 		if args['type_noise']=="speckle":
                     varia=args['speckle_var']
+                    print("N:",N)
                     seq1=seq[1:N/2,:,:,:]
                     seq2=seq[N/2:N,:,:,:]
                     print("seq1",seq1.shape)
