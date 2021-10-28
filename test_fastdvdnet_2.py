@@ -115,7 +115,7 @@ def test_fastdvdnet(**args):
         #
 		if args['type_noise']=="uniform":
 # std dev of each sequence
-                    stdn = torch.empty((N, 1, 1, 1)).cuda().uniform_(args['noise_ival'][0], to=args['noise_ival'][1])
+                    stdn = torch.empty((N, 1, 1, 1)).cuda().uniform_(args['uniform_noise_ival'][0], to=args['uniform_noise_ival'][1])
 # draw noise samples from std dev tensor
                     v_max=np.sqrt(3)*stdn
                     noise = torch.empty((N,L,H,W)).cuda().uniform(-1,to=1)
@@ -206,13 +206,13 @@ if __name__ == "__main__":
 
 	parser.add_argument("--type_noise", type=str,default="gaussian",\
 						 help='choose of the noise')
-	parser.add_argument("--uniform_noise_eval", nargs=2, type=int, default=[5, 55],\
+	parser.add_argument("--uniform_noise_ival", nargs=2, type=int, default=[5, 55],\
 						 help='threshold of the uniform distribution of stantard error')
 	argspar = parser.parse_args()
 	# Normalize noises ot [0, 1]
 	argspar.noise_sigma /= 255.
-	argspar.noise_ival[0] /= 255.
-	argspar.noise_ival[1] /= 255.
+	argspar.uniform_noise_ival[0] /= 255.
+	argspar.uniform_noise_ival[1] /= 255.
 	# use CUDA?
 	argspar.cuda = not argspar.no_gpu and torch.cuda.is_available()
 
