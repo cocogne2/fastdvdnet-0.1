@@ -45,8 +45,9 @@ def save_out_seq(seqnoisy, seqclean, save_dir, sigmaval, suffix, save_noisy):
 			cv2.imwrite(noisy_name, noisyimg)
 
 		outimg = variable_to_cv2_image(seqclean[idx].unsqueeze(dim=0))
-		cv2.imwrite(out_name, outimg)
-
+		#cv2.imwrite(out_name, outimg)
+		if idx==42 | idx==69 | idx==97 :
+			cv2.imwrite(out_name, outimg)
 def test_fastdvdnet(**args):
 	"""Denoises all sequences present in a given folder. Sequences must be stored as numbered
 	image sequences. The different sequences must be stored in subfolders under the "test_path" folder.
@@ -129,18 +130,18 @@ def test_fastdvdnet(**args):
                     seqn=seq+noise
 #                    plt.imshow(seqn[1,:,:,:].unsqueeze(0).cuda().detach().cpu().clone().numpy().swapaxes(0,3).swapaxes(1,2).squeeze())
 #                    plt.savefig("/content/gdrive/My Drive/projet_7/savefig3.png")
-                    sys.exit()                                
+#                    sys.exit()                                
                     
 
 
-		if args['type_noise']=="poisson":
-                    peak=args['poisson_peak']
-                    seqn = torch.poisson(seq  * peak ).to(device) / float(peak) 
-                    noise=seqn-seq
-                    noisestd=torch.std(noise,unbiased=True).to(device)
-                    plt.imshow(seqn[1,:,:,:].unsqueeze(0).cuda().detach().cpu().clone().numpy().swapaxes(0,3).swapaxes(1,2).squeeze())
-                    plt.savefig("/content/gdrive/My Drive/projet_7/savefig3.png")
-                    sys.exit()  
+#		if args['type_noise']=="poisson":
+#                    peak=args['poisson_peak']
+#                    seqn = torch.poisson(seq  * peak ).to(device) / float(peak) 
+#                    noise=seqn-seq
+#                    noisestd=torch.std(noise,unbiased=True).to(device)
+#                    plt.imshow(seqn[1,:,:,:].unsqueeze(0).cuda().detach().cpu().clone().numpy().swapaxes(0,3).swapaxes(1,2).squeeze())
+#                    plt.savefig("/content/gdrive/My Drive/projet_7/savefig3.png")
+#                    sys.exit()  
 		if args['type_noise']=="s&p":
                     s_vs_p = 0.5
                     # Salt mode
@@ -155,7 +156,7 @@ def test_fastdvdnet(**args):
                     seqn=torch.cat([seqn1,seqn2,seqn3],0)
                     noise=seqn-seq
                     noisestd=torch.std(noise, unbiased=False).to(device)
-                    sys.exit()
+#                    sys.exit()
 
 		if args['type_noise']=="speckle":
                     varia=args['speckle_var']
@@ -167,7 +168,7 @@ def test_fastdvdnet(**args):
                     seqn=torch.cat([seqn1,seqn2],0)
                     noise=seqn-seq
                     noisestd=torch.std(noise, unbiased=False).to(device)
-                    sys.exit()
+#                    sys.exit()
                      
 
 		denframes = denoise_seq_fastdvdnet(seq=seqn,\
