@@ -115,42 +115,40 @@ def test_fastdvdnet(**args):
         #
 		if args['type_noise']=="uniform":
 # std dev of each sequence
-                    stdn = torch.empty((N, 1, 1, 1)).cuda().uniform_(args['uniform_noise_ival'][0], to=args['uniform_noise_ival'][1])
-# draw noise samples from std dev tensor
+                    stdn = torch.empty((N, 1, 1, 1)).cuda().uniform_(args['uniform_noise_ival'][0], to=args['uniform_noise_ival'][1]).to(device)
                     #v_max=np.sqrt(3)*stdn
                     #print("v_max shape",v_max.shape)
                     #noise = torch.empty((N,L,H,W)).cuda().uniform_(-1,to=1)
                     # Pytorch accept? 
                     #noise2 = noise*stdn.expand_as(noise)
-                    noise = torch.empty((N,L,H,W)).cuda().uniform_(-1,to=1)*stdn.expand_as(torch.empty((N,L,H,W)).cuda())*np.sqrt(3)
+                    noise = (torch.empty((N,L,H,W)).cuda().uniform_(-1,to=1)*stdn.expand_as(torch.empty((N,L,H,W)).cuda())*np.sqrt(3)).to(device)
                     #for img_du_batch in range(N):
                     #    noise2[img_du_batch,:,:,:] = noise2[img_du_batch,:,:,:]*v_max[img_du_batch]
                     #print(noise-noise2)
-                    noisestd=torch.std(noise, unbiased=False)
+                    noisestd=torch.std(noise, unbiased=False).to(device)
 #                    plt.imshow(seqn[1,:,:,:].unsqueeze(0).cuda().detach().cpu().clone().numpy().swapaxes(0,3).swapaxes(1,2).squeeze())
 #                    plt.savefig("/content/gdrive/My Drive/projet_7/savefig3.png")
 #                    sys.exit()                                
 		if args['type_noise']=="poisson":
                     peak=args['poisson_peak']
-                    seqn = torch.poisson(seq  * peak ) / float(peak) 
+                    seqn = torch.poisson(seq  * peak ).to(device) / float(peak) 
                     noise=seqn-seq
-                    noisestd=torch.std(noise,unbiased=True)
+                    noisestd=torch.std(noise,unbiased=True).to(device)
                     plt.imshow(seqn[1,:,:,:].unsqueeze(0).cuda().detach().cpu().clone().numpy().swapaxes(0,3).swapaxes(1,2).squeeze())
                     plt.savefig("/content/gdrive/My Drive/projet_7/savefig3.png")
                     sys.exit()  
 		if args['type_noise']=="s&p":
                     s_vs_p = 0.5
                     # Salt mode
-                    seqn = torch.tensor(random_noise(seq.cpu(), mode='s&p', salt_vs_pepper=s_vs_p, clip=True)).cuda()
+                    seqn = torch.tensor(random_noise(seq.cpu(), mode='s&p', salt_vs_pepper=s_vs_p, clip=True)).cuda().to(device)
                     noise=seqn-seq
-                    noisestd=torch.std(noise, unbiased=False)
+                    noisestd=torch.std(noise, unbiased=False).to(device)
 
-            
 		if args['type_noise']=="speckle":
                     varia=args['speckle_var']
-                    seqn = torch.tensor(random_noise(seq.cpu(), mode='speckle', mean=0, var=varia, clip=True)).cuda().float()
+                    seqn = torch.tensor(random_noise(seq.cpu(), mode='speckle', mean=0, var=varia, clip=True)).cuda().float().to(device)
                     noise=seqn-seq
-                    noisestd=torch.std(noise, unbiased=False)
+                    noisestd=torch.std(noise, unbiased=False).to(device)
                     
                      
 
