@@ -16,6 +16,7 @@ from utils import batch_psnr, init_logger_test, \
 				variable_to_cv2_image, remove_dataparallel_wrapper, open_sequence, close_logger
 import sys
 import numpy as np
+from skimage.util import random_noise
 
 NUM_IN_FR_EXT = 5 # temporal size of patch
 MC_ALGO = 'DeepFlow' # motion estimation algorithm
@@ -107,10 +108,8 @@ def test_fastdvdnet(**args):
 		N, L, H, W = seq.size()
 		if args['type_noise']=="gaussian":        
                     noise = torch.empty_like(seq).normal_(mean=0, std=args['noise_sigma']).to(device)
-                    print("noiseshape",noise.shape)
                     seqn = seq + noise
                     noisestd = torch.FloatTensor([args['noise_sigma']]).to(device)
-                    print("noisestd",noisestd.shape)
                     sys.exit()
         #
 		if args['type_noise']=="uniform":
@@ -126,36 +125,37 @@ def test_fastdvdnet(**args):
                     #for img_du_batch in range(N):
                     #    noise2[img_du_batch,:,:,:] = noise2[img_du_batch,:,:,:]*v_max[img_du_batch]
                     #print(noise-noise2)
-                    print("noise",noise)
-                    sys.exit()
-                                 
-		if args['type_noise']=="poisson":
-                    peak=args['poisson_peak']
-                    imgn_train = torch.poisson(img_train /255 * peak ) / float(peak) *255
-                    noise=imgn_train-img_train
-                    std=torch.std(noise,unbiased=True)
-                    mean=torch.mean(noise)
-                    stdn = torch.empty((N, 1, 1, 1)).cuda().normal_(mean=mean,std=std)
+                    print("noiseshape",noise.shape)
+                    seqn=seq+noise
+                    noisestd=torch.std(noise, unbiased=False)
+                    print("noisestdshape",noisestd.shape)
+                    plt.imshow(seqn[1,:,:,:].unsqueeze(0).cuda().detach().cpu().clone().numpy().swapaxes(0,3).swapaxes(1,2).squeeze())
+                    plt.savefig("/content/gdrive/My Drive/projet_7/savefig3.png")
+                    sys.exit()                                
+#		if args['type_noise']=="poisson":
+#                    peak=args['poisson_peak']
+#                    imgn_train = torch.poisson(img_train /255 * peak ) / float(peak) *255
+#                    noise=imgn_train-img_train
+#                    std=torch.std(noise,unbiased=True)
+#                    mean=torch.mean(noise)
+#                    stdn = torch.empty((N, 1, 1, 1)).cuda().normal_(mean=mean,std=std)
 
 		if args['type_noise']=="s&p":
                     s_vs_p = 0.5
                     # Salt mode
-                    imgn_train = torch.tensor(random_noise(img_train.cpu(), mode='s&p', salt_vs_pepper=s_vs_p, clip=True)).cuda()
-                    noise=imgn_train-img_train
-                    stdn = torch.empty((N, 1, 1, 1)).cuda()
-                    for img_du_batch in range(N):
-                        stdn[img_du_batch,:,:,:]=torch.std(noise[img_du_batch,:,:,:],unbiased=True) 
+                    seqn = torch.tensor(random_noise(seq.cpu(), mode='s&p', salt_vs_pepper=s_vs_p, clip=True)).cuda()
+                    noise=seqn-seq
+                    noisestd=torch.std(noise, unbiased=False)
 #                                    plt.imshow(imgn_train[1,0:3,:,:].unsqueeze(0).cuda().detach().cpu().clone().numpy().swapaxes(0,3).swapaxes(1,2).squeeze())
 #                                    plt.savefig("/content/gdrive/My Drive/projet_7/savefig1_s&p.png")
 #                                    sys.exit()
             
 		if args['type_noise']=="speckle":
                     varia=args['speckle_var']
-                    imgn_train = torch.tensor(random_noise(img_train.cpu(), mode='speckle', mean=0, var=varia, clip=True)).cuda().float()
-                    noise=imgn_train-img_train
-                    stdn = torch.empty((N, 1, 1, 1)).cuda()
-                    for img_du_batch in range(N):
-                        stdn[img_du_batch,:,:,:]=torch.std(noise[img_du_batch,:,:,:],unbiased=True) 
+                    seqn = torch.tensor(random_noise(seq.cpu(), mode='speckle', mean=0, var=varia, clip=True)).cuda().float()
+                    noise=seqn-seq
+                    noisestd=torch.std(noise, unbiased=False)
+                    
 #                                    plt.imshow(imgn_train[1,0:3,:,:].unsqueeze(0).cuda().detach().cpu().clone().numpy().swapaxes(0,3).swapaxes(1,2).squeeze())
 #                                    plt.savefig("/content/gdrive/My Drive/projet_7/savefig1_speckle.png")
 #                                    sys.exit()                        
@@ -210,6 +210,8 @@ if __name__ == "__main__":
 						 help='choose of the noise')
 	parser.add_argument("--uniform_noise_ival", nargs=2, type=int, default=[5, 55],\
 						 help='threshold of the uniform distribution of stantard error')
+	parser.add_argument("--speckle_var", type=float, default=0.05,\
+						 help='variance of the speckle distribution')
 	argspar = parser.parse_args()
 	# Normalize noises ot [0, 1]
 	argspar.noise_sigma /= 255.
