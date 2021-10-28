@@ -154,7 +154,7 @@ def test_fastdvdnet(**args):
                     print("N:",N)
                     milieu=round(N/2)
                     print("milieu:",milieu)
-                    seq1=seq[1:milieu,:,:,:]
+                    seq1=seq[0:milieu,:,:,:]
                     seq2=seq[milieu:N,:,:,:]
                     print("seq1",seq1.shape)
                     print("seq2",seq2.shape)
