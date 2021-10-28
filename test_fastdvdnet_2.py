@@ -126,9 +126,13 @@ def test_fastdvdnet(**args):
                     #    noise2[img_du_batch,:,:,:] = noise2[img_du_batch,:,:,:]*v_max[img_du_batch]
                     #print(noise-noise2)
                     noisestd=torch.std(noise, unbiased=False).to(device)
+                    seqn=seq+noise
 #                    plt.imshow(seqn[1,:,:,:].unsqueeze(0).cuda().detach().cpu().clone().numpy().swapaxes(0,3).swapaxes(1,2).squeeze())
 #                    plt.savefig("/content/gdrive/My Drive/projet_7/savefig3.png")
-#                    sys.exit()                                
+                    sys.exit()                                
+                    
+
+
 		if args['type_noise']=="poisson":
                     peak=args['poisson_peak']
                     seqn = torch.poisson(seq  * peak ).to(device) / float(peak) 
@@ -143,13 +147,14 @@ def test_fastdvdnet(**args):
                     seqn = torch.tensor(random_noise(seq.cpu(), mode='s&p', salt_vs_pepper=s_vs_p, clip=True)).cuda().to(device)
                     noise=seqn-seq
                     noisestd=torch.std(noise, unbiased=False).to(device)
+                    sys.exit()
 
 		if args['type_noise']=="speckle":
                     varia=args['speckle_var']
                     seqn = torch.tensor(random_noise(seq.cpu(), mode='speckle', mean=0, var=varia, clip=True)).cuda().float().to(device)
                     noise=seqn-seq
                     noisestd=torch.std(noise, unbiased=False).to(device)
-                    
+                    sys.exit()
                      
 
 		denframes = denoise_seq_fastdvdnet(seq=seqn,\
