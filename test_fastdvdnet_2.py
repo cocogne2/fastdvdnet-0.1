@@ -104,6 +104,7 @@ def test_fastdvdnet(**args):
 		# Add noise
 
 		#
+		N, L, H, W = seq.size()
 		if args['type_noise']=="gaussian":        
                     noise = torch.empty_like(seq).normal_(mean=0, std=args['noise_sigma']).to(device)
                     print("noiseshape",noise.shape)
@@ -124,10 +125,8 @@ def test_fastdvdnet(**args):
                     for img_du_batch in range(N):
                         noise2[img_du_batch,:,:,:] = noise2[img_du_batch,:,:,:]*v_max[img_du_batch,1,1,1]
                     print(noise-noise2)
-                    
-                    plt.imshow(imgn_train[1,0:3,:,:].unsqueeze(0).cuda().detach().cpu().clone().numpy().swapaxes(0,3).swapaxes(1,2).squeeze())
-                    plt.savefig("/content/gdrive/My Drive/projet_7/savefig1_gauss.png")
-                    sys.exit()                                    
+                    sys.exit()
+                                 
 		if args['type_noise']=="poisson":
                     peak=args['poisson_peak']
                     imgn_train = torch.poisson(img_train /255 * peak ) / float(peak) *255
@@ -135,9 +134,7 @@ def test_fastdvdnet(**args):
                     std=torch.std(noise,unbiased=True)
                     mean=torch.mean(noise)
                     stdn = torch.empty((N, 1, 1, 1)).cuda().normal_(mean=mean,std=std)
-                    plt.imshow(imgn_train[1,0:3,:,:].unsqueeze(0).cuda().detach().cpu().clone().numpy().swapaxes(0,3).swapaxes(1,2).squeeze())
-                    plt.savefig("/content/gdrive/My Drive/projet_7/savefig1_poisson.png")
-                    sys.exit()
+
 		if args['type_noise']=="s&p":
                     s_vs_p = 0.5
                     # Salt mode

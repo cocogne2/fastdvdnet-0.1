@@ -130,6 +130,7 @@ def main(**args):
                                     for img_du_batch in range(N):
                                         noise2[img_du_batch,:,:,:] = noise[img_du_batch,:,:,:]*v_max[img_du_batch,1,1,1]
                                     print(noise-noise2)
+
 			if args['type_noise']=="poisson":
                                     peak=args['poisson_peak']
                                     imgn_train = torch.poisson(img_train /255 * peak ) / float(peak) *255
