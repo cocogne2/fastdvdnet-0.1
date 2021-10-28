@@ -160,7 +160,7 @@ def test_fastdvdnet(**args):
                     print("seq2",seq2.shape)
                     seqn1 = torch.tensor(random_noise(seq1.cpu(), mode='speckle', mean=0, var=varia, clip=True)).cuda().float().to(device)
                     seqn2 = torch.tensor(random_noise(seq2.cpu(), mode='speckle', mean=0, var=varia, clip=True)).cuda().float().to(device)
-                    seqn=torch.cat([seqn1,seqn2],1)
+                    seqn=torch.cat([seqn1,seqn2],0)
                     print("seqnshape",seqn.shape)
                     noise=seqn-seq
                     noisestd=torch.std(noise, unbiased=False).to(device)
