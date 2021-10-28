@@ -117,15 +117,16 @@ def test_fastdvdnet(**args):
 # std dev of each sequence
                     stdn = torch.empty((N, 1, 1, 1)).cuda().uniform_(args['uniform_noise_ival'][0], to=args['uniform_noise_ival'][1])
 # draw noise samples from std dev tensor
-                    v_max=np.sqrt(3)*stdn
-                    print("v_max shape",v_max.shape)
-                    noise = torch.empty((N,L,H,W)).cuda().uniform_(-1,to=1)
+                    #v_max=np.sqrt(3)*stdn
+                    #print("v_max shape",v_max.shape)
+                    #noise = torch.empty((N,L,H,W)).cuda().uniform_(-1,to=1)
                     # Pytorch accept? 
-                    noise2 = noise*stdn.expand_as(noise)
-                    noise = torch.empty((N,L,H,W)).cuda().uniform_(-1,to=1)*stdn.expand_as(noise)*np.sqrt(3)
-                    for img_du_batch in range(N):
-                        noise2[img_du_batch,:,:,:] = noise2[img_du_batch,:,:,:]*v_max[img_du_batch]
-                    print(noise-noise2)
+                    #noise2 = noise*stdn.expand_as(noise)
+                    noise = torch.empty((N,L,H,W)).cuda().uniform_(-1,to=1)*stdn.expand_as(torch.empty((N,L,H,W)).cuda())*np.sqrt(3)
+                    #for img_du_batch in range(N):
+                    #    noise2[img_du_batch,:,:,:] = noise2[img_du_batch,:,:,:]*v_max[img_du_batch]
+                    #print(noise-noise2)
+                    print("noise",noise)
                     sys.exit()
                                  
 		if args['type_noise']=="poisson":
