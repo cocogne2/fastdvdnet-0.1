@@ -17,6 +17,7 @@ from utils import batch_psnr, init_logger_test, \
 import sys
 import numpy as np
 from skimage.util import random_noise
+import matplotlib.pyplot as plt
 
 NUM_IN_FR_EXT = 5 # temporal size of patch
 MC_ALGO = 'DeepFlow' # motion estimation algorithm
