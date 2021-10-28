@@ -28,7 +28,6 @@ def save_out_seq(seqnoisy, seqclean, save_dir, sigmaval, suffix, save_noisy):
 	"""
 	seq_len = seqnoisy.size()[0]
 	for idx in range(seq_len):
-		print(idx)
         # Build Outname
 		fext = OUTIMGEXT
 		noisy_name = os.path.join(save_dir,\
