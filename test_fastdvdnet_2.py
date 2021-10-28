@@ -144,12 +144,15 @@ def test_fastdvdnet(**args):
 		if args['type_noise']=="s&p":
                     s_vs_p = 0.5
                     # Salt mode
-                    milieu=round(N/2)
-                    seq1=seq[0:milieu,:,:,:]
-                    seq2=seq[milieu:N,:,:,:]
+                    tiers=round(N/3)
+                    deuxtiers=2*round(N/3)
+                    seq1=seq[0:tiers,:,:,:]
+                    seq2=seq[tiers:deuxtiers,:,:,:]
+                    seq3=seq[deuxtiers:N,:,:,:]
                     seqn1 = torch.tensor(random_noise(seq1.cpu(), mode='s&p', salt_vs_pepper=s_vs_p, clip=True)).cuda().to(device)
                     seqn2 = torch.tensor(random_noise(seq2.cpu(), mode='s&p', salt_vs_pepper=s_vs_p, clip=True)).cuda().to(device)
-                    seqn=torch.cat([seqn1,seqn2],0)
+                    seqn3 = torch.tensor(random_noise(seq3.cpu(), mode='s&p', salt_vs_pepper=s_vs_p, clip=True)).cuda().to(device)
+                    seqn=torch.cat([seqn1,seqn2,seqn3],0)
                     noise=seqn-seq
                     noisestd=torch.std(noise, unbiased=False).to(device)
                     sys.exit()
