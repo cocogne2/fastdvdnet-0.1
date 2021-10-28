@@ -48,8 +48,12 @@ def save_out_seq(seqnoisy, seqclean, save_dir, sigmaval, suffix, save_noisy):
 		#cv2.imwrite(out_name, outimg)
 		
         #oiseau
-		if ((idx==42) | (idx==69) | (idx==97)):
+		#if ((idx==42) | (idx==69) | (idx==97)):
+		#	cv2.imwrite(out_name, outimg)
+		#rally
+		if ((idx==81) | (idx==90)):
 			cv2.imwrite(out_name, outimg)
+
 def test_fastdvdnet(**args):
 	"""Denoises all sequences present in a given folder. Sequences must be stored as numbered
 	image sequences. The different sequences must be stored in subfolders under the "test_path" folder.
