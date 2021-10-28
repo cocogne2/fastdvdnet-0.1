@@ -47,7 +47,8 @@ def save_out_seq(seqnoisy, seqclean, save_dir, sigmaval, suffix, save_noisy):
 
 		outimg = variable_to_cv2_image(seqclean[idx].unsqueeze(dim=0))
 		#cv2.imwrite(out_name, outimg)
-		if idx==42 | idx==69 | idx==97:
+		if ((idx==42) | (idx==69) | (idx==97)):
+			print(idx)
 			cv2.imwrite(out_name, outimg)
 def test_fastdvdnet(**args):
 	"""Denoises all sequences present in a given folder. Sequences must be stored as numbered
