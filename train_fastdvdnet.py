@@ -104,7 +104,7 @@ def main(**args):
 #			plt.imshow(img_train[1,6:9,:,:].unsqueeze(0).cuda().detach().cpu().clone().numpy().swapaxes(0,3).swapaxes(1,2).squeeze())
 #			plt.savefig("/content/gdrive/My Drive/projet_7/savefig1ter.png")
 #			plt.show()
-			N, _, H, W = img_train.size()
+			N, L, H, W = img_train.size()
 			
 			if args['type_noise']=="gaussian":
                 # std dev of each sequence
@@ -117,6 +117,29 @@ def main(**args):
 #                                    plt.imshow(imgn_train[1,0:3,:,:].unsqueeze(0).cuda().detach().cpu().clone().numpy().swapaxes(0,3).swapaxes(1,2).squeeze())
 #                                    plt.savefig("/content/gdrive/My Drive/projet_7/savefig1_gauss.png")
 #                                    sys.exit()
+                                    
+			if args['type_noise']=="uniform":
+# std dev of each sequence
+                                    stdn = torch.empty((N, 1, 1, 1)).cuda().uniform_(args['noise_ival'][0], to=args['noise_ival'][1])
+# draw noise samples from std dev tensor
+                                    v_max=np.sqrt(3)*stdn
+                                    noise = torch.empty((N,L,H,W)).cuda().uniform(-1,to=1)
+                                    # Pytorch accept? 
+                                    noise = noise*stdn.expand_as(noise)
+                                    noise2 = torch.empty((N,L,H,W)).cuda().uniform(-1,to=1)*stdn.expand_as(noise)*np.sqrt(3).cuda()
+                                    for img_du_batch in range(N):
+                                        noise2[img_du_batch,:,:,:] = noise[img_du_batch,:,:,:]*v_max[img_du_batch,1,1,1]
+                                    print(noise-noise2)
+			if args['type_noise']=="poisson":
+                                    peak=args['poisson_peak']
+                                    imgn_train = torch.poisson(img_train /255 * peak ) / float(peak) *255
+                                    noise=imgn_train-img_train
+                                    std=torch.std(noise,unbiased=True)
+                                    mean=torch.mean(noise)
+                                    stdn = torch.empty((N, 1, 1, 1)).cuda().normal_(mean=mean,std=std)
+                                    plt.imshow(imgn_train[1,0:3,:,:].unsqueeze(0).cuda().detach().cpu().clone().numpy().swapaxes(0,3).swapaxes(1,2).squeeze())
+                                    plt.savefig("/content/gdrive/My Drive/projet_7/savefig1_poisson.png")
+                                    sys.exit()
 			if args['type_noise']=="s&p":
                                     s_vs_p = 0.5
                                     # Salt mode
@@ -231,6 +254,8 @@ if __name__ == "__main__":
 ###########################
 	parser.add_argument("--type_noise", type=str, default="gaussian", \
                         help="type of the noise:gaussian,s&p,poisson")
+	parser.add_argument("--poisson_peak", type=float, default=25.0, \
+                        help="peak of the poisson noise")
 	parser.add_argument("--speckle_var", type=float, default=0.05, \
                         help="variance of the speckle function")
 ###########################

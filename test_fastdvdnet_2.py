@@ -10,11 +10,13 @@ import time
 import cv2
 import torch
 import torch.nn as nn
-from models import FastDVDnet
+from models_init import FastDVDnet
 from fastdvdnet import denoise_seq_fastdvdnet
 from utils import batch_psnr, init_logger_test, \
 				variable_to_cv2_image, remove_dataparallel_wrapper, open_sequence, close_logger
 import sys
+import numpy as np
+
 NUM_IN_FR_EXT = 5 # temporal size of patch
 MC_ALGO = 'DeepFlow' # motion estimation algorithm
 OUTIMGEXT = '.png' # output images format
@@ -104,8 +106,11 @@ def test_fastdvdnet(**args):
 		#
 		if args['type_noise']=="gaussian":        
                     noise = torch.empty_like(seq).normal_(mean=0, std=args['noise_sigma']).to(device)
-                    seq + noise
-                    std = torch.FloatTensor([args['noise_sigma']]).to(device)
+                    print("noiseshape",noise.shape)
+                    seqn = seq + noise
+                    noisestd = torch.FloatTensor([args['noise_sigma']]).to(device)
+                    print("noisestd",noisestd.shape)
+                    sys.exit()
         #
 		if args['type_noise']=="uniform":
 # std dev of each sequence
@@ -201,7 +206,8 @@ if __name__ == "__main__":
 						 help='where to save outputs as png')
 	parser.add_argument("--gray", action='store_true',\
 						help='perform denoising of grayscale images instead of RGB')
-
+	parser.add_argument("--noise_type", type=str,default="gaussian",\
+						 help='choose of the noise')
 	argspar = parser.parse_args()
 	# Normalize noises ot [0, 1]
 	argspar.noise_sigma /= 255.
