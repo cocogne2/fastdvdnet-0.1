@@ -224,7 +224,7 @@ if __name__ == "__main__":
 
 	parser.add_argument("--type_noise", type=str,default="gaussian",\
 						 help='choose of the noise')
-	parser.add_argument("--uniform_noise_ival", nargs=2, type=int, default=[5, 55],\
+	parser.add_argument("--uniform_noise_ival", nargs=2, type=float, default=[5, 55],\
 						 help='threshold of the uniform distribution of stantard error')
 	parser.add_argument("--speckle_var", type=float, default=0.05,\
 						 help='variance of the speckle distribution')

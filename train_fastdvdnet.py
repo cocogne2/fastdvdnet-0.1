@@ -260,7 +260,7 @@ if __name__ == "__main__":
 	parser.add_argument("--speckle_var", type=float, default=0.05, \
                         help="variance of the speckle function")
 ###########################
-	parser.add_argument("--noise_ival", nargs=2, type=float, default=[5, 55], \
+	parser.add_argument("--noise_ival", nargs=2, type=int, default=[5, 55], \
 					 help="Noise training interval")
 	parser.add_argument("--val_noiseL", type=float, default=25, \
 						help='noise level used on validation set')
