@@ -203,12 +203,16 @@ if __name__ == "__main__":
 						 help='where to save outputs as png')
 	parser.add_argument("--gray", action='store_true',\
 						help='perform denoising of grayscale images instead of RGB')
+
 	parser.add_argument("--type_noise", type=str,default="gaussian",\
 						 help='choose of the noise')
+	parser.add_argument("--uniform_noise_eval", nargs=2, type=int, default=[5, 55],\
+						 help='threshold of the uniform distribution of stantard error')
 	argspar = parser.parse_args()
 	# Normalize noises ot [0, 1]
 	argspar.noise_sigma /= 255.
-
+	argspar.noise_ival[0] /= 255.
+	argspar.noise_ival[1] /= 255.
 	# use CUDA?
 	argspar.cuda = not argspar.no_gpu and torch.cuda.is_available()
 
