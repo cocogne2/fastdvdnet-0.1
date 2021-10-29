@@ -49,11 +49,11 @@ def save_out_seq(seqnoisy, seqclean, save_dir, sigmaval, suffix, save_noisy):
 		#cv2.imwrite(out_name, outimg)
 		
         #oiseau
-		if ((idx==42) | (idx==69) | (idx==97)):
-			cv2.imwrite(out_name, outimg)
-		#rally
-		#if ((idx==81) | (idx==90)):
+		#if ((idx==42) | (idx==69) | (idx==97)):
 		#	cv2.imwrite(out_name, outimg)
+		#rally
+		if ((idx==81) | (idx==90)):
+			cv2.imwrite(out_name, outimg)
 
 def test_fastdvdnet(**args):
 	"""Denoises all sequences present in a given folder. Sequences must be stored as numbered
@@ -192,8 +192,8 @@ def test_fastdvdnet(**args):
 		seqnn1=seqn[n_img,:,:,:].data.cpu().numpy().astype(np.float32)
 		psnr1=compare_psnr(seq1, denframes1,data_range=1.)
 		psnr_noisy1=compare_psnr(seq1, seqnn1.squeeze(),data_range=1.)
-		print("psnr\t{}\t\tpsnr_noisy\t{}".format(psnr1,psnr_noisy1))
-        
+		print("psnr_result\t{}\t\tpsnr_noisy\t{}".format(psnr1,psnr_noisy1))
+		logger.info("psnr_result\t{}\t\tpsnr_noisy\t{}".format(psnr1,psnr_noisy1))
        
 	loadtime = (seq_time - start_time)
 	runtime = (stop_time - seq_time)
