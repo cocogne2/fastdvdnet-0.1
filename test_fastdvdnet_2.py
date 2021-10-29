@@ -18,6 +18,7 @@ import sys
 import numpy as np
 from skimage.util import random_noise
 import matplotlib.pyplot as plt
+from skimage.measure.simple_metrics import compare_psnr
 
 NUM_IN_FR_EXT = 5 # temporal size of patch
 MC_ALGO = 'DeepFlow' # motion estimation algorithm
@@ -48,11 +49,11 @@ def save_out_seq(seqnoisy, seqclean, save_dir, sigmaval, suffix, save_noisy):
 		#cv2.imwrite(out_name, outimg)
 		
         #oiseau
-		#if ((idx==42) | (idx==69) | (idx==97)):
-		#	cv2.imwrite(out_name, outimg)
-		#rally
-		if ((idx==81) | (idx==90)):
+		if ((idx==42) | (idx==69) | (idx==97)):
 			cv2.imwrite(out_name, outimg)
+		#rally
+		#if ((idx==81) | (idx==90)):
+		#	cv2.imwrite(out_name, outimg)
 
 def test_fastdvdnet(**args):
 	"""Denoises all sequences present in a given folder. Sequences must be stored as numbered
@@ -185,12 +186,22 @@ def test_fastdvdnet(**args):
 	stop_time = time.time()
 	psnr = batch_psnr(denframes, seq, 1.)
 	psnr_noisy = batch_psnr(seqn.squeeze(), seq, 1.)
+	for n_img in range(N):
+		seq1=seq[n_img,:,:,:].data.cpu().numpy().astype(np.float32)
+		denframes1=denframes[n_img,:,:,:].data.cpu().numpy().astype(np.float32)
+		seqnn1=seqn[n_img,:,:,:].data.cpu().numpy().astype(np.float32)
+		psnr1=compare_psnr(seq1, denframes1,data_range=1.)
+		psnr_noisy1=compare_psnr(seq1, seqnn1.squeeze(),data_range=1.)
+		print("psnr\t{}\t\tpsnr_noisy\t{}".format(psnr1,psnr_noisy1))
+        
+       
 	loadtime = (seq_time - start_time)
 	runtime = (stop_time - seq_time)
 	seq_length = seq.size()[0]
 	logger.info("Finished denoising {}".format(args['test_path']))
 	logger.info("\tDenoised {} frames in {:.3f}s, loaded seq in {:.3f}s".\
 				 format(seq_length, runtime, loadtime))
+	print("PSNR noisy\t{:.4f}\tdB,\t PSNR result\t{:.4f}\tdB".format(psnr_noisy, psnr))
 	logger.info("\tPSNR noisy {:.4f}dB, PSNR result {:.4f}dB".format(psnr_noisy, psnr))
 
 	# Save outputs
